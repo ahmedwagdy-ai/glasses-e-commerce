@@ -7,7 +7,11 @@ const connectDB = async () => {
             return;
         }
 
-        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/glasses-shop');
+        if (!process.env.MONGO_URI) {
+            throw new Error('MONGO_URI is NOT defined in environment variables');
+        }
+
+        const conn = await mongoose.connect(process.env.MONGO_URI);
 
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
