@@ -7,7 +7,7 @@ const orderSchema = mongoose.Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ['visa', 'instapay', 'wallet']
+        enum: ['Visa', 'Didital Wallet', 'Cash on Delivery']
     },
     items: [
         {

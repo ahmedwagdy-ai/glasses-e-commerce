@@ -3,7 +3,7 @@ const Joi = require('joi');
 const createOrderSchema = Joi.object({
     customerName: Joi.string().required(),
     address: Joi.string().required(),
-    paymentMethod: Joi.string().required(),
+    paymentMethod: Joi.string().valid('card', 'wallet', 'cash').required(),
     items: Joi.array().items(
         Joi.object({
             product: Joi.string().required(), // ObjectId
