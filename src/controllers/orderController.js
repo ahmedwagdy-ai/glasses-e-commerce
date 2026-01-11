@@ -7,7 +7,11 @@ const addOrderItems = asyncHandler(async (req, res) => {
     try {
         const orderData = { ...req.body, user: req.user._id };
         const createdOrder = await orderService.createOrder(orderData);
-        res.status(201).json(createdOrder);
+        res.status(201).json({
+            success: true,
+            message: 'Order created successfully',
+            data: createdOrder
+        });
     } catch (error) {
         res.status(400);
         throw new Error(error.message);
@@ -19,7 +23,11 @@ const addOrderItems = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
     try {
         const order = await orderService.getOrderById(req.params.id);
-        res.json(order);
+        res.json({
+            success: true,
+            message: 'Order retrieved successfully',
+            data: order
+        });
     } catch (error) {
         res.status(404);
         throw new Error(error.message);
@@ -30,7 +38,11 @@ const getOrderById = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 const getOrders = asyncHandler(async (req, res) => {
     const orders = await orderService.getOrders();
-    res.json(orders);
+    res.json({
+        success: true,
+        message: 'Orders retrieved successfully',
+        data: orders
+    });
 });
 
 // @desc    Update order to paid
@@ -38,7 +50,11 @@ const getOrders = asyncHandler(async (req, res) => {
 const updateOrderToPaid = asyncHandler(async (req, res) => {
     try {
         const updatedOrder = await orderService.updateOrderToPaid(req.params.id, req.body);
-        res.json(updatedOrder);
+        res.json({
+            success: true,
+            message: 'Order updated to paid successfully',
+            data: updatedOrder
+        });
     } catch (error) {
         res.status(404);
         throw new Error(error.message);
@@ -50,7 +66,11 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
 const updateOrderToDelivered = asyncHandler(async (req, res) => {
     try {
         const updatedOrder = await orderService.updateOrderToDelivered(req.params.id);
-        res.json(updatedOrder);
+        res.json({
+            success: true,
+            message: 'Order updated to delivered successfully',
+            data: updatedOrder
+        });
     } catch (error) {
         res.status(404);
         throw new Error(error.message);

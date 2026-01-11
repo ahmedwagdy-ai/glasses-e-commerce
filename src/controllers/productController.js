@@ -3,10 +3,13 @@ const productService = require('../services/productService');
 
 // @desc    Fetch all products
 // @route   GET /api/products
-// @access  Public
 const getProducts = asyncHandler(async (req, res) => {
     const products = await productService.getAllProducts(req.query);
-    res.json(products);
+    res.json({
+        success: true,
+        message: 'Products retrieved successfully',
+        data: products
+    });
 });
 
 // @desc    Fetch single product
@@ -14,7 +17,11 @@ const getProducts = asyncHandler(async (req, res) => {
 const getProductById = asyncHandler(async (req, res) => {
     try {
         const product = await productService.getProductById(req.params.id);
-        res.json(product);
+        res.json({
+            success: true,
+            message: 'Product retrieved successfully',
+            data: product
+        });
     } catch (error) {
         res.status(404);
         throw new Error(error.message);
@@ -26,7 +33,11 @@ const getProductById = asyncHandler(async (req, res) => {
 const createProduct = asyncHandler(async (req, res) => {
     try {
         const product = await productService.createProduct(req.body);
-        res.status(201).json(product);
+        res.status(201).json({
+            success: true,
+            message: 'Product created successfully',
+            data: product
+        });
     } catch (error) {
         res.status(400);
         throw new Error(error.message);
@@ -38,7 +49,11 @@ const createProduct = asyncHandler(async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
     try {
         const updatedProduct = await productService.updateProduct(req.params.id, req.body);
-        res.json(updatedProduct);
+        res.json({
+            success: true,
+            message: 'Product updated successfully',
+            data: updatedProduct
+        });
     } catch (error) {
         res.status(404);
         throw new Error(error.message);
@@ -50,7 +65,11 @@ const updateProduct = asyncHandler(async (req, res) => {
 const deleteProduct = asyncHandler(async (req, res) => {
     try {
         const result = await productService.deleteProduct(req.params.id);
-        res.json(result);
+        res.json({
+            success: true,
+            message: 'Product deleted successfully',
+            data: result
+        });
     } catch (error) {
         res.status(404);
         throw new Error(error.message);
