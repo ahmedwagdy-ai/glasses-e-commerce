@@ -1,18 +1,12 @@
 const Joi = require('joi');
 
 const createOrderSchema = Joi.object({
-    customerName: Joi.string().required(),
+    product: Joi.string().required(), // Direct Product ID
+    quantity: Joi.number().optional().min(1).default(1),
     address: Joi.string().required(),
-    paymentMethod: Joi.string().valid('card', 'wallet', 'cash').required(),
-    items: Joi.array().items(
-        Joi.object({
-            product: Joi.string().required(), // ObjectId
-            qty: Joi.number().required().min(1),
-            price: Joi.number().required().min(0),
-        })
-    ).required().min(1),
-    totalAmount: Joi.number().required().min(0),
-    // Optional billing data structure if strictly required by Paymob controller logic
+    paymentMethod: Joi.string().valid('cash').default('cash'),
+    // Legacy support or if we want to allow cart checkout later, we could use alternatives, 
+    // but user specifically asked to "remove items".
     billingData: Joi.object().optional(),
 });
 

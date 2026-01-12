@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const userRoutes = require('./routes/userRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
@@ -35,11 +34,19 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
+const adminRoutes = require('./routes/admin'); // Will resolve to /routes/admin/index.js
+const settingRoutes = require('./routes/settingRoutes');
+
+app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingRoutes);
+
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/payment', paymentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
+const homeRoutes = require('./routes/homeRoutes');
+
+app.use('/api/user/home', homeRoutes);
 app.use('/api/upload', uploadRoutes);
 
 app.use(notFound);

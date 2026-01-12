@@ -6,6 +6,9 @@ const Product = require('./src/models/Product');
 const Order = require('./src/models/Order');
 const Category = require('./src/models/Category');
 
+const categoriesData = require('./src/data/categories');
+const productsData = require('./src/data/products');
+
 dotenv.config();
 
 const connectDB = async () => {
@@ -29,10 +32,20 @@ const importData = async () => {
         await Category.deleteMany();
 
         // Import Users
-        // We use a loop instead of insertMany to trigger the pre-save hook for password hashing
         for (const user of users) {
             await User.create(user);
         }
+
+        // Import Categories
+        const createdCategories = await Category.insertMany(categoriesData);
+        const categoryId = createdCategories[0]._id; // Assign all products to the first category for simplicity
+
+        // Import Products
+        const sampleProducts = productsData.map(product => {
+            return { ...product, category: categoryId };
+        });
+
+        await Product.insertMany(sampleProducts);
 
         console.log('Data Imported!');
         process.exit();

@@ -6,7 +6,7 @@ class QueryHelper {
 
     filter() {
         const queryObj = { ...this.queryString };
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
+        const excludedFields = ['page', 'sort', 'limit', 'fields', 'keyword'];
         excludedFields.forEach((el) => delete queryObj[el]);
 
         // Advanced filtering: price[gt]=100 -> { price: { $gt: 100 } }
@@ -15,6 +15,21 @@ class QueryHelper {
 
         this.query = this.query.find(JSON.parse(queryStr));
 
+        return this;
+    }
+
+    search(searchFields = []) {
+        if (this.queryString.keyword) {
+            const keyword = {
+                $or: searchFields.map((field) => ({
+                    [field]: {
+                        $regex: this.queryString.keyword,
+                        $options: 'i',
+                    },
+                })),
+            };
+            this.query = this.query.find(keyword);
+        }
         return this;
     }
 

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const cloudinaryService = require('../services/cloudinaryService');
+const QueryHelper = require('../utils/QueryHelper');
 
 class UserService {
     generateToken(id) {
@@ -10,7 +11,7 @@ class UserService {
     }
 
     async registerUser(data) {
-        const { name, email, password, avatar } = data;
+        const { name, email, phone, password, avatar } = data;
 
         const userExists = await User.findOne({ email });
 
@@ -21,6 +22,7 @@ class UserService {
         const user = await User.create({
             name,
             email,
+            phone,
             password,
             avatar,
         });
@@ -30,6 +32,7 @@ class UserService {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
                 avatar: user.avatar,
                 isAdmin: user.isAdmin,
                 token: this.generateToken(user._id),
@@ -47,6 +50,7 @@ class UserService {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
                 avatar: user.avatar,
                 isAdmin: user.isAdmin,
                 token: this.generateToken(user._id),
@@ -77,6 +81,7 @@ class UserService {
 
         user.name = data.name || user.name;
         user.email = data.email || user.email;
+        user.phone = data.phone || user.phone;
         if (data.password) {
             user.password = data.password;
         }
@@ -88,6 +93,7 @@ class UserService {
             _id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,
+            phone: updatedUser.phone,
             avatar: updatedUser.avatar,
             isAdmin: updatedUser.isAdmin,
             token: this.generateToken(updatedUser._id),
@@ -105,8 +111,26 @@ class UserService {
     }
 
     // Admin methods
-    async getUsers() {
-        return await User.find({});
+    async getUsers(queryString) {
+        const countQuery = new QueryHelper(User.find(), queryString)
+            .search(['name', 'email'])
+            .filter();
+        const count = await countQuery.query.countDocuments();
+
+        const features = new QueryHelper(User.find(), queryString)
+            .search(['name', 'email'])
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+
+        const users = await features.query;
+
+        const page = queryString ? (queryString.page * 1 || 1) : 1;
+        const limit = queryString ? (queryString.limit * 1 || 10) : 10;
+        const pages = Math.ceil(count / limit);
+
+        return { users, page, pages, count };
     }
 
     async getUserById(id) {
