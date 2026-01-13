@@ -4,11 +4,11 @@ const categoryService = require('../services/categoryService');
 // @desc    Fetch all categories
 // @route   GET /api/categories
 const getCategories = asyncHandler(async (req, res) => {
-    const categories = await categoryService.getAllCategories();
+    const result = await categoryService.getAllCategories(req.query);
     res.json({
         success: true,
         message: 'Categories retrieved successfully',
-        data: categories
+        data: result
     });
 });
 

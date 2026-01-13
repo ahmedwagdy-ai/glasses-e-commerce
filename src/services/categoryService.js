@@ -1,9 +1,25 @@
 const Category = require('../models/Category');
 const cloudinaryService = require('../services/cloudinaryService');
+const QueryHelper = require('../utils/QueryHelper');
 
 class CategoryService {
-    async getAllCategories() {
-        return await Category.find({});
+    async getAllCategories(queryString) {
+        const countQuery = new QueryHelper(Category.find(), queryString).filter();
+        const count = await countQuery.query.countDocuments();
+
+        const features = new QueryHelper(Category.find(), queryString)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+
+        const categories = await features.query;
+
+        const page = queryString ? (queryString.page * 1 || 1) : 1;
+        const limit = queryString ? (queryString.limit * 1 || 10) : 10;
+        const pages = Math.ceil(count / limit);
+
+        return { categories, page, pages, count };
     }
 
     async getCategoryById(id) {

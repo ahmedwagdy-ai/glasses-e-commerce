@@ -34,7 +34,13 @@ const updateProductSchema = Joi.object({
     countInStock: Joi.number().min(0).optional(),
 });
 
+const reviewSchema = Joi.object({
+    rating: Joi.number().required().min(1).max(5),
+    comment: Joi.string().required(),
+});
+
 module.exports = {
     createProductSchema,
     updateProductSchema,
+    reviewSchema
 };

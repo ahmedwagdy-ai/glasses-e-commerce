@@ -5,7 +5,20 @@ const orderService = require('../services/orderService');
 // @route   POST /api/orders
 const addOrderItems = asyncHandler(async (req, res) => {
     try {
-        const orderData = { ...req.body, user: req.user._id };
+        const { product, quantity, address, paymentMethod } = req.body;
+
+        const orderData = {
+            user: req.user._id,
+            customerName: req.user.name,
+            address,
+            paymentMethod,
+            items: [
+                {
+                    product,
+                    quantity: quantity || 1
+                }
+            ]
+        };
         const createdOrder = await orderService.createOrder(orderData);
         res.status(201).json({
             success: true,
@@ -34,14 +47,25 @@ const getOrderById = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Get logged in user orders
+// @route   GET /api/orders/myorders
+const getMyOrders = asyncHandler(async (req, res) => {
+    const orders = await orderService.getMyOrders(req.user._id);
+    res.json({
+        success: true,
+        message: 'My orders retrieved successfully',
+        data: orders
+    });
+});
+
 // @desc    Get all orders
 // @route   GET /api/orders
 const getOrders = asyncHandler(async (req, res) => {
-    const orders = await orderService.getOrders();
+    const result = await orderService.getOrders(req.query);
     res.json({
         success: true,
         message: 'Orders retrieved successfully',
-        data: orders
+        data: result
     });
 });
 
@@ -77,10 +101,67 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Update order to done (completed)
+// @route   PUT /api/orders/:id/done
+const updateOrderToDone = asyncHandler(async (req, res) => {
+    try {
+        const updatedOrder = await orderService.updateOrderToDone(req.params.id);
+        res.json({
+            success: true,
+            message: 'Order updated to done successfully',
+            data: updatedOrder
+        });
+    } catch (error) {
+        res.status(404);
+        throw new Error(error.message);
+    }
+});
+
+// @desc    Get delivered orders
+// @route   GET /api/admin/orders/delivered
+const getDeliveredOrders = asyncHandler(async (req, res) => {
+    const query = { ...req.query, isDelivered: 'true' };
+    const result = await orderService.getOrders(query);
+    res.json({
+        success: true,
+        message: 'Delivered orders retrieved successfully',
+        data: result
+    });
+});
+
+// @desc    Get paid orders
+// @route   GET /api/admin/orders/paid
+const getPaidOrders = asyncHandler(async (req, res) => {
+    const query = { ...req.query, isPaid: 'true' };
+    const result = await orderService.getOrders(query);
+    res.json({
+        success: true,
+        message: 'Paid orders retrieved successfully',
+        data: result
+    });
+});
+
+// @desc    Get pending orders
+// @route   GET /api/admin/orders/pending
+const getPendingOrders = asyncHandler(async (req, res) => {
+    // Pending usually means status is 'pending' (default)
+    const query = { ...req.query, status: 'pending' };
+    const result = await orderService.getOrders(query);
+    res.json({
+        success: true,
+        message: 'Pending orders retrieved successfully',
+        data: result
+    });
+});
+
 module.exports = {
     addOrderItems,
     getOrderById,
     getOrders,
     updateOrderToPaid,
     updateOrderToDelivered,
+    getMyOrders,
+    getDeliveredOrders,
+    getPaidOrders,
+    getPendingOrders,
 };

@@ -1,4 +1,6 @@
 const Product = require('../models/Product');
+const Order = require('../models/Order');
+const QueryHelper = require('../utils/QueryHelper');
 
 class OrderService {
     async createOrder(data) {
@@ -7,7 +9,6 @@ class OrderService {
             address,
             paymentMethod,
             items,
-            totalAmount,
             user,
         } = data;
 
@@ -15,16 +16,31 @@ class OrderService {
             throw new Error('No order items');
         }
 
-        // 1. Verify Stock & Prices
+        let itemsPrice = 0;
+        const SHIPPING_PRICE = 50;
+        const orderItems = [];
+
+        // 1. Verify Stock & Prices & Calculate Total & Prepare Items
         for (const item of items) {
             const product = await Product.findById(item.product);
             if (!product) {
-                throw new Error(`Product not found: ${item.name}`);
+                throw new Error(`Product not found: ${item.name || item.product}`);
             }
             if (product.countInStock < item.quantity) {
                 throw new Error(`Not enough stock for ${product.name}`);
             }
+            itemsPrice += product.price * item.quantity;
+
+            orderItems.push({
+                product: product._id,
+                name: product.name,
+                price: product.price,
+                quantity: item.quantity,
+                image: (product.colors && product.colors.length > 0) ? product.colors[0].image.url : null
+            });
         }
+
+        const finalTotalAmount = itemsPrice + SHIPPING_PRICE;
 
         // 2. Create Order
         const order = new Order({
@@ -32,8 +48,9 @@ class OrderService {
             customerName,
             address,
             paymentMethod,
-            items,
-            totalAmount,
+            items: orderItems,
+            shippingPrice: SHIPPING_PRICE,
+            totalAmount: finalTotalAmount,
         });
 
         const createdOrder = await order.save();
@@ -43,6 +60,7 @@ class OrderService {
             const product = await Product.findById(item.product);
             if (product) {
                 product.countInStock -= item.quantity;
+                product.numSales = (product.numSales || 0) + item.quantity;
                 await product.save();
             }
         }
@@ -58,8 +76,31 @@ class OrderService {
         return order;
     }
 
-    async getOrders() {
-        return await Order.find({}).populate('items.product', 'name price image');
+    async getMyOrders(userId) {
+        return await Order.find({ user: userId }).sort({ createdAt: -1 });
+    }
+
+    async getOrders(queryString) {
+        const countQuery = new QueryHelper(Order.find(), queryString).filter();
+        const count = await countQuery.query.countDocuments();
+
+        const features = new QueryHelper(Order.find(), queryString)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+
+        // Populate after query helper execution if needed, but here we can chain populate 
+        // Note: chained query methods work on the Mongoose Query object
+        features.query.populate('items.product', 'name price image');
+
+        const orders = await features.query;
+
+        const page = queryString ? (queryString.page * 1 || 1) : 1;
+        const limit = queryString ? (queryString.limit * 1 || 10) : 10;
+        const pages = Math.ceil(count / limit);
+
+        return { orders, page, pages, count };
     }
 
     async updateOrderToPaid(id, paymentResult) {
@@ -67,7 +108,7 @@ class OrderService {
 
         order.isPaid = true;
         order.paidAt = Date.now();
-        // order.paymentResult = paymentResult; // Add this when payment implementation is ready
+        order.paymentResult = paymentResult; // Add this when payment implementation is ready
 
         return await order.save();
     }

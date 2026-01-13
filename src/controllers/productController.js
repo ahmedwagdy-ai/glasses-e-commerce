@@ -76,10 +76,23 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Create new review
+// @route   POST /api/products/:id/reviews
+// @access  Private
+const createProductReview = asyncHandler(async (req, res) => {
+    const { rating, comment } = req.body;
+    await productService.createProductReview(req.params.id, req.user, rating, comment);
+    res.status(201).json({
+        success: true,
+        message: 'Review added'
+    });
+});
+
 module.exports = {
     getProducts,
     getProductById,
     createProduct,
     updateProduct,
     deleteProduct,
+    createProductReview
 };

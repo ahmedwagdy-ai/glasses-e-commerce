@@ -15,13 +15,10 @@ const { parseFile } = require('../middleware/fileParser');
 
 router
     .route('/')
-    .get(getCategories)
-    .post(protect, admin, upload.single('image'), parseFile('image'), validate(createCategorySchema), createCategory);
+    .get(getCategories);
 
 router
     .route('/:id')
-    .get(getCategoryById)
-    .put(protect, admin, upload.single('image'), parseFile('image'), validate(updateCategorySchema), updateCategory)
-    .delete(protect, admin, deleteCategory);
+    .get(getCategoryById);
 
 module.exports = router;

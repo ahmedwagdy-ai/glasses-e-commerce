@@ -1,5 +1,5 @@
 const validate = (schema) => (req, res, next) => {
-    const { error } = schema.validate(req.body, { abortEarly: false });
+    const { error, value } = schema.validate(req.body, { abortEarly: false });
 
     if (error) {
         const errorMessage = error.details.map((detail) => detail.message).join(', ');
@@ -7,6 +7,7 @@ const validate = (schema) => (req, res, next) => {
         throw new Error(errorMessage);
     }
 
+    req.body = value;
     next();
 };
 

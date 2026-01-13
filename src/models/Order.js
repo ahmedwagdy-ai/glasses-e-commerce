@@ -7,7 +7,8 @@ const orderSchema = mongoose.Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ['Visa', 'Didital Wallet', 'Cash on Delivery']
+        enum: ['cash'],
+        default: 'cash'
     },
     items: [
         {
@@ -17,8 +18,19 @@ const orderSchema = mongoose.Schema({
             price: { type: Number, required: true },
         }
     ],
+    shippingPrice: { type: Number, required: true, default: 0 },
     totalAmount: { type: Number, required: true },
     status: { type: String, default: 'pending' },
+    isPaid: { type: Boolean, required: true, default: false },
+    paidAt: { type: Date },
+    isDelivered: { type: Boolean, required: true, default: false },
+    deliveredAt: { type: Date },
+    paymentResult: {
+        id: { type: String },
+        status: { type: String },
+        update_time: { type: String },
+        email_address: { type: String },
+    },
 }, {
     timestamps: true,
 });
