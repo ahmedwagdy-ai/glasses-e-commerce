@@ -130,7 +130,7 @@ class UserService {
         const limit = queryString ? (queryString.limit * 1 || 10) : 10;
         const pages = Math.ceil(count / limit);
 
-        return { users, page, pages, count };
+        return { count, page, pages, users };
     }
 
     async getUserById(id) {

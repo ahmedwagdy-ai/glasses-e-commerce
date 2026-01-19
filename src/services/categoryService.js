@@ -4,10 +4,24 @@ const QueryHelper = require('../utils/QueryHelper');
 
 class CategoryService {
     async getAllCategories(queryString) {
-        const countQuery = new QueryHelper(Category.find(), queryString).filter();
+        let categoryQuery = Category.find();
+
+        if (queryString.keyword) {
+            const keywordRegex = { $regex: queryString.keyword, $options: 'i' };
+            categoryQuery = categoryQuery.find({
+                $or: [
+                    { 'name.en': keywordRegex },
+                    { 'name.ar': keywordRegex },
+                    { 'description.en': keywordRegex },
+                    { 'description.ar': keywordRegex }
+                ]
+            });
+        }
+
+        const countQuery = new QueryHelper(categoryQuery.clone(), queryString).filter();
         const count = await countQuery.query.countDocuments();
 
-        const features = new QueryHelper(Category.find(), queryString)
+        const features = new QueryHelper(categoryQuery, queryString)
             .filter()
             .sort()
             .limitFields()
@@ -15,11 +29,11 @@ class CategoryService {
 
         const categories = await features.query;
 
-        const page = queryString ? (queryString.page * 1 || 1) : 1;
-        const limit = queryString ? (queryString.limit * 1 || 10) : 10;
+        const page = queryString.page * 1 || 1;
+        const limit = queryString.limit * 1 || 10;
         const pages = Math.ceil(count / limit);
 
-        return { categories, page, pages, count };
+        return { count, page, pages, categories };
     }
 
     async getCategoryById(id) {

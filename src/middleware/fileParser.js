@@ -21,7 +21,34 @@ const parseFiles = (fieldName) => (req, res, next) => {
 };
 
 const processMixedFiles = (req, res, next) => {
-    // Handle Color Images
+    console.log('--- processMixedFiles Debug ---');
+    console.log('Raw req.body:', JSON.stringify(req.body, null, 2));
+
+    // Handle Description (if sent as stringified JSON in form-data)
+    if (req.body.description) {
+        console.log('Processing description:', req.body.description);
+        try {
+            req.body.description = typeof req.body.description === 'string' ? JSON.parse(req.body.description) : req.body.description;
+            console.log('Parsed description:', req.body.description);
+        } catch (error) {
+            console.log('Name is not JSON, keeping as string (valid for legacy/simple description)');
+            // Ignore error, keep as string
+        }
+    }
+
+    // Handle Name (if sent as stringified JSON in form-data for bilingual support)
+    if (req.body.name) {
+        console.log('Processing name:', req.body.name);
+        try {
+            req.body.name = typeof req.body.name === 'string' ? JSON.parse(req.body.name) : req.body.name;
+            console.log('Parsed name:', req.body.name);
+        } catch (error) {
+            console.log('Name is not JSON, keeping as string (valid for Products)');
+            // Ignore error, keep as string
+        }
+    }
+
+    // Handle Color Images 'colors' field (already existing logic)
     if (req.body.colors) {
         let colors = [];
         try {

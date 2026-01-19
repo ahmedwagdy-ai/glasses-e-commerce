@@ -17,10 +17,9 @@ class OrderService {
         }
 
         let itemsPrice = 0;
-        const SHIPPING_PRICE = 50;
-        const orderItems = [];
-
         // 1. Verify Stock & Prices & Calculate Total & Prepare Items
+        let shippingPrice = 0;
+
         for (const item of items) {
             const product = await Product.findById(item.product);
             if (!product) {
@@ -29,18 +28,24 @@ class OrderService {
             if (product.countInStock < item.quantity) {
                 throw new Error(`Not enough stock for ${product.name}`);
             }
+            // Add product shipping cost * quantity (or just flat per product if preferred, but assuming quantity based)
+            // Default to 0 if not set on product
+            const productShipping = product.shippingPrice || 0;
+            shippingPrice += productShipping * item.quantity;
+
             itemsPrice += product.price * item.quantity;
 
             orderItems.push({
                 product: product._id,
                 name: product.name,
                 price: product.price,
+                shippingPrice: productShipping, // Store snapshot of shipping cost
                 quantity: item.quantity,
                 image: (product.colors && product.colors.length > 0) ? product.colors[0].image.url : null
             });
         }
 
-        const finalTotalAmount = itemsPrice + SHIPPING_PRICE;
+        const finalTotalAmount = itemsPrice + shippingPrice;
 
         // 2. Create Order
         const order = new Order({
@@ -49,7 +54,7 @@ class OrderService {
             address,
             paymentMethod,
             items: orderItems,
-            shippingPrice: SHIPPING_PRICE,
+            shippingPrice: shippingPrice,
             totalAmount: finalTotalAmount,
         });
 
@@ -77,7 +82,11 @@ class OrderService {
     }
 
     async getMyOrders(userId) {
-        return await Order.find({ user: userId }).sort({ createdAt: -1 });
+        const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+        return {
+            count: orders.length,
+            orders
+        };
     }
 
     async getOrders(queryString) {
@@ -100,7 +109,7 @@ class OrderService {
         const limit = queryString ? (queryString.limit * 1 || 10) : 10;
         const pages = Math.ceil(count / limit);
 
-        return { orders, page, pages, count };
+        return { count, page, pages, orders };
     }
 
     async updateOrderToPaid(id, paymentResult) {

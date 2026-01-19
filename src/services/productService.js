@@ -6,8 +6,24 @@ const Category = require('../models/Category');
 
 class ProductService {
     async getAllProducts(queryString) {
+        // Handle pageNumber alias
+        if (queryString.pageNumber) {
+            queryString.page = queryString.pageNumber;
+            delete queryString.pageNumber;
+        }
+
+        // Handle duplicate keyword (take first match)
+        if (queryString.keyword && Array.isArray(queryString.keyword)) {
+            queryString.keyword = queryString.keyword[0];
+        }
+
         if (queryString.category) {
-            const category = await Category.findOne({ name: { $regex: queryString.category, $options: 'i' } });
+            const category = await Category.findOne({
+                $or: [
+                    { 'name.en': { $regex: queryString.category, $options: 'i' } },
+                    { 'name.ar': { $regex: queryString.category, $options: 'i' } }
+                ]
+            });
             if (category) {
                 queryString.category = category._id;
             } else {
@@ -18,13 +34,20 @@ class ProductService {
         let productQuery = Product.find();
 
         if (queryString.keyword) {
-            const categories = await Category.find({ name: { $regex: queryString.keyword, $options: 'i' } });
+            const categories = await Category.find({
+                $or: [
+                    { 'name.en': { $regex: queryString.keyword, $options: 'i' } },
+                    { 'name.ar': { $regex: queryString.keyword, $options: 'i' } }
+                ]
+            });
             const categoryIds = categories.map((c) => c._id);
 
             const keywordRegex = { $regex: queryString.keyword, $options: 'i' };
             const searchConditions = [
                 { name: keywordRegex },
-                { description: keywordRegex },
+                { name: keywordRegex },
+                { 'description.en': keywordRegex },
+                { 'description.ar': keywordRegex },
                 { 'colors.name': keywordRegex },
             ];
 
@@ -49,13 +72,13 @@ class ProductService {
             .limitFields()
             .paginate();
 
-        const products = await features.query;
+        const products = await features.query.populate('category');
 
         const page = queryString.page * 1 || 1;
         const limit = queryString.limit * 1 || 10;
         const pages = Math.ceil(count / limit);
 
-        return { products, page, pages, count };
+        return { count, page, pages, products };
     }
 
     async getProductById(id) {
@@ -64,6 +87,17 @@ class ProductService {
         if (product) {
             product.numVisits = (product.numVisits || 0) + 1;
             await product.save({ validateBeforeSave: false });
+
+            // Fetch related products (same category, exclude current)
+            const relatedProducts = await Product.find({
+                category: product.category._id,
+                _id: { $ne: product._id }
+            }).limit(4);
+
+            return {
+                ...product.toObject(),
+                relatedProducts
+            };
         }
 
         if (!product) {
@@ -116,12 +150,13 @@ class ProductService {
     }
 
     async createProduct(data) {
-        const { name, description, price, category, colors, countInStock } = data;
+        const { name, description, price, shippingPrice, category, colors, countInStock } = data;
 
         const product = new Product({
             name,
             description,
             price,
+            shippingPrice,
             category,
             colors,
             countInStock
@@ -149,6 +184,7 @@ class ProductService {
         product.name = data.name || product.name;
         product.description = data.description || product.description;
         product.price = data.price || product.price;
+        product.shippingPrice = data.shippingPrice !== undefined ? data.shippingPrice : product.shippingPrice;
         product.category = data.category || product.category;
         product.countInStock = data.countInStock !== undefined ? data.countInStock : product.countInStock;
 

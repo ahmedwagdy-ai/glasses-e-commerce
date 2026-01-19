@@ -13,6 +13,5 @@ const { createOrderSchema } = require('../validations/orderValidation');
 router.route('/').post(protect, validate(createOrderSchema), addOrderItems);
 router.route('/myorders').get(protect, getMyOrders);
 router.route('/:id').get(protect, getOrderById);
-router.route('/:id/pay').put(protect, updateOrderToPaid);
 
 module.exports = router;

@@ -2,8 +2,12 @@ const Joi = require('joi');
 
 const createProductSchema = Joi.object({
     name: Joi.string().required(),
-    description: Joi.string().required(),
+    description: Joi.object({
+        en: Joi.string().required(),
+        ar: Joi.string().required()
+    }).required(),
     price: Joi.number().required().min(0),
+    shippingPrice: Joi.number().min(0).default(0),
     category: Joi.string().required(), // Expecting ObjectId as string
     colors: Joi.array().items(
         Joi.object({
@@ -19,8 +23,12 @@ const createProductSchema = Joi.object({
 
 const updateProductSchema = Joi.object({
     name: Joi.string().optional(),
-    description: Joi.string().optional(),
+    description: Joi.object({
+        en: Joi.string().optional(),
+        ar: Joi.string().optional()
+    }).optional(),
     price: Joi.number().min(0).optional(),
+    shippingPrice: Joi.number().min(0).optional(),
     category: Joi.string().optional(),
     colors: Joi.array().items(
         Joi.object({
