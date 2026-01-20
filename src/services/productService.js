@@ -106,11 +106,11 @@ class ProductService {
         return product;
     }
 
-    async getTopProducts(limit = 4) {
+    async getTopProducts(limit = 8) {
         return await Product.find({}).sort({ numVisits: -1 }).limit(limit);
     }
 
-    async getBestSellingProducts(limit = 4) {
+    async getBestSellingProducts(limit = 8) {
         return await Product.find({}).sort({ numSales: -1 }).limit(limit);
     }
 

@@ -12,5 +12,6 @@ router.use('/categories', adminCategoryRoutes);
 router.use('/users', adminUserRoutes);
 router.use('/orders', adminOrderRoutes);
 router.use('/settings', adminSettingRoutes);
+router.use('/dashboard', require('./adminDashboardRoutes'));
 
 module.exports = router;
