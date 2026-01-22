@@ -6,7 +6,7 @@ const productService = require('../services/productService');
 // @desc    Get top visited products
 // @route   GET /api/user/home/top-visited
 const getTopVisited = asyncHandler(async (req, res) => {
-    const products = await productService.getTopProducts(4);
+    const products = await productService.getTopProducts(8);
 
     res.json({
         success: true,
@@ -18,7 +18,7 @@ const getTopVisited = asyncHandler(async (req, res) => {
 // @desc    Get best selling products
 // @route   GET /api/user/home/best-selling
 const getBestSelling = asyncHandler(async (req, res) => {
-    const products = await productService.getBestSellingProducts(4);
+    const products = await productService.getBestSellingProducts(8);
 
     res.json({
         success: true,
