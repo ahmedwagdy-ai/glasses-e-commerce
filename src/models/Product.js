@@ -34,6 +34,16 @@ const productSchema = mongoose.Schema({
     numReviews: { type: Number, required: true, default: 0 },
 }, {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+productSchema.virtual('availability').get(function () {
+    if (this.countInStock === 0) {
+        return { en: "Out of Stock", ar: "غير متوفر" };
+    } else {
+        return { en: "In Stock", ar: "متوفر" };
+    }
 });
 
 const Product = mongoose.model('Product', productSchema);

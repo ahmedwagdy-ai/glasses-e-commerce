@@ -19,6 +19,7 @@ class OrderService {
         let itemsPrice = 0;
         // 1. Verify Stock & Prices & Calculate Total & Prepare Items
         let shippingPrice = 0;
+        const orderItems = [];
 
         for (const item of items) {
             const product = await Product.findById(item.product);
@@ -62,12 +63,12 @@ class OrderService {
 
         // 3. Deduct Stock
         for (const item of items) {
-            const product = await Product.findById(item.product);
-            if (product) {
-                product.countInStock -= item.quantity;
-                product.numSales = (product.numSales || 0) + item.quantity;
-                await product.save();
-            }
+            await Product.findByIdAndUpdate(item.product, {
+                $inc: {
+                    countInStock: -item.quantity,
+                    numSales: item.quantity
+                }
+            });
         }
 
         return createdOrder;
