@@ -6,6 +6,7 @@ class OrderService {
     async createOrder(data) {
         const {
             customerName,
+            phone,
             address,
             paymentMethod,
             items,
@@ -52,6 +53,7 @@ class OrderService {
         const order = new Order({
             user,
             customerName,
+            phone,
             address,
             paymentMethod,
             items: orderItems,
