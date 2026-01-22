@@ -5,6 +5,8 @@ const createOrderSchema = Joi.object({
     quantity: Joi.number().optional().min(1).default(1),
     address: Joi.string().required(),
     paymentMethod: Joi.string().valid('cash').default('cash'),
+    customerName: Joi.string().optional(),
+    phone: Joi.string().optional(),
     // Legacy support or if we want to allow cart checkout later, we could use alternatives, 
     // but user specifically asked to "remove items".
     billingData: Joi.object().optional(),
