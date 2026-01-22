@@ -166,7 +166,10 @@ class ProductService {
     }
 
     async updateProduct(id, data) {
-        const product = await this.getProductById(id);
+        const product = await Product.findById(id);
+        if (!product) {
+            throw new Error('Product not found');
+        }
 
         // Cleanup images if they are being updated
         if (data.colors) {
@@ -192,7 +195,10 @@ class ProductService {
     }
 
     async deleteProduct(id) {
-        const product = await this.getProductById(id);
+        const product = await Product.findById(id);
+        if (!product) {
+            throw new Error('Product not found');
+        }
 
         // Delete all associated images from Cloudinary
         if (product.colors && product.colors.length > 0) {
