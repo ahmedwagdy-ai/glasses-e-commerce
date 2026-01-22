@@ -181,17 +181,15 @@ class ProductService {
                     }
                 }
             }
-            product.colors = data.colors;
         }
 
-        product.name = data.name || product.name;
-        product.description = data.description || product.description;
-        product.price = data.price || product.price;
-        product.shippingPrice = data.shippingPrice !== undefined ? data.shippingPrice : product.shippingPrice;
-        product.category = data.category || product.category;
-        product.countInStock = data.countInStock !== undefined ? data.countInStock : product.countInStock;
+        // Use findByIdAndUpdate to handle updates more gracefully, especially with legacy data
+        const updatedProduct = await Product.findByIdAndUpdate(id, data, {
+            new: true,
+            runValidators: true
+        });
 
-        return await product.save();
+        return updatedProduct;
     }
 
     async deleteProduct(id) {
