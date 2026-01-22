@@ -48,7 +48,6 @@ const homeRoutes = require('./routes/homeRoutes');
 
 app.use('/api/user/home', homeRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/payment', require('./routes/paymentRoutes'));
 
 app.use(notFound);
 app.use(errorHandler);
