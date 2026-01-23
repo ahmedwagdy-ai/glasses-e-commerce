@@ -1,7 +1,16 @@
 const Joi = require('joi');
 
 const createOrderSchema = Joi.object({
-    product: Joi.string().required(), // Direct Product ID
+    // Support for multiple items
+    items: Joi.array().items(
+        Joi.object({
+            product: Joi.string().required(),
+            quantity: Joi.number().min(1).default(1)
+        })
+    ).optional(),
+
+    // Legacy single item support (optional now, but one of them is needed)
+    product: Joi.string().optional(),
     quantity: Joi.number().optional().min(1).default(1),
     address: Joi.string().required(),
     paymentMethod: Joi.string().valid('cash').default('cash'),
