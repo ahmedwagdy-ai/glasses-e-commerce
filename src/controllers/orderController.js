@@ -5,11 +5,31 @@ const orderService = require('../services/orderService');
 // @route   POST /api/orders
 const addOrderItems = asyncHandler(async (req, res) => {
     try {
-        const { product, quantity, address, paymentMethod } = req.body;
+        const { product, quantity, address, paymentMethod, customerName, phone } = req.body;
+
+        // Determine customer details
+        let finalCustomerName = req.user.name;
+        let finalPhone = req.user.phone;
+
+        console.log('Is Admin:', req.user.isAdmin);
+        console.log('Request Body:', req.body);
+
+        // If Admin is creating the order, allow overriding name and phone
+        if (req.user.isAdmin) {
+            if (customerName) finalCustomerName = customerName;
+            if (phone) finalPhone = phone;
+        } else {
+            // If non-admin tries to set these fields, throw error or warn
+            if (customerName || phone) {
+                res.status(403);
+                throw new Error('Only admins can specify customerName and phone');
+            }
+        }
 
         const orderData = {
             user: req.user._id,
-            customerName: req.user.name,
+            customerName: finalCustomerName,
+            phone: finalPhone, // Assuming phone is part of orderData
             address,
             paymentMethod,
             items: [
