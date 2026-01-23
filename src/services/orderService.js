@@ -24,6 +24,9 @@ class OrderService {
         const orderItems = [];
 
         for (const item of items) {
+            if (!item.product) {
+                throw new Error('Product ID is missing in one of the items');
+            }
             const product = await Product.findById(item.product);
             if (!product) {
                 throw new Error(`Product not found: ${item.name || item.product}`);
