@@ -25,6 +25,12 @@ const addOrderItems = asyncHandler(async (req, res) => {
             }
         }
 
+        // Validate that we have a phone number (either from body or profile)
+        if (!finalPhone) {
+            res.status(400);
+            throw new Error('Please update your profile with a phone number or provide one in the request.');
+        }
+
         const orderData = {
             user: req.user._id,
             customerName: finalCustomerName,
