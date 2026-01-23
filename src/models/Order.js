@@ -26,6 +26,12 @@ const orderSchema = mongoose.Schema({
     paidAt: { type: Date },
     isDelivered: { type: Boolean, required: true, default: false },
     deliveredAt: { type: Date },
+    orderSource: {
+        type: String,
+        required: true,
+        enum: ['online', 'offline'],
+        default: 'online'
+    },
     paymentResult: {
         id: { type: String },
         status: { type: String },

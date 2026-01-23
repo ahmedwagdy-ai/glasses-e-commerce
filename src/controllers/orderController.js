@@ -7,14 +7,20 @@ const addOrderItems = asyncHandler(async (req, res) => {
     try {
         const { product, quantity, address, paymentMethod, customerName, phone } = req.body;
 
-        // Determine customer details
+        // Determine customer details and order source
         let finalCustomerName = req.user.name;
         let finalPhone = req.user.phone;
+        let finalOrderSource = 'online';
 
         // If Admin is creating the order, allow overriding name and phone
         if (req.user.isAdmin) {
             if (customerName) finalCustomerName = customerName;
             if (phone) finalPhone = phone;
+            // If admin overwrites details, we consider it an offline/manual order
+            // Or if admin creates it generally via this portal? 
+            // The user request implies: "If admin creates it -> offline". 
+            // Let's assume ANY admin creation via this endpoint is manually entered.
+            finalOrderSource = 'offline';
         } else {
             // Standard user must use their own profile details
             // (We ignore body params if sent by non-admin to avoid spoofing, 
@@ -35,6 +41,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
             user: req.user._id,
             customerName: finalCustomerName,
             phone: finalPhone, // Assuming phone is part of orderData
+            orderSource: finalOrderSource,
             address,
             paymentMethod,
             items: [

@@ -7,6 +7,7 @@ class OrderService {
         const {
             customerName,
             phone,
+            orderSource,
             address,
             paymentMethod,
             items,
@@ -54,6 +55,7 @@ class OrderService {
             user,
             customerName,
             phone,
+            orderSource,
             address,
             paymentMethod,
             items: orderItems,
