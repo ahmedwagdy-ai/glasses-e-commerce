@@ -51,6 +51,10 @@ class OrderService {
             });
         }
 
+        if (data.freeShipping) {
+            shippingPrice = 0;
+        }
+
         const finalTotalAmount = itemsPrice + shippingPrice;
 
         // 2. Create Order
