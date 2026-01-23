@@ -57,46 +57,44 @@ const createAdminOrder = asyncHandler(async (req, res) => {
 
         if (!customerName || !phone) {
             res.status(400);
-            if (!customerName || !phone) {
-                res.status(400);
-                throw new Error('Customer name and phone are required for manual orders');
-            }
-
-            let orderItems = [];
-            if (items && Array.isArray(items) && items.length > 0) {
-                orderItems = items;
-            } else if (product) {
-                orderItems = [{ product, quantity: quantity || 1 }];
-            } else {
-                res.status(400);
-                throw new Error('No order items');
-            }
-
-            const orderData = {
-                user: req.user._id, // Created by Admin
-                customerName: customerName,
-                phone: phone,
-                orderSource: 'offline',
-                address,
-                paymentMethod,
-                items: orderItems
-            };
-            const createdOrder = await orderService.createOrder(orderData);
-
-            // Remove user ID from response
-            const responseOrder = createdOrder.toObject();
-            delete responseOrder.user;
-
-            res.status(201).json({
-                success: true,
-                message: 'Manual order created successfully',
-                data: responseOrder
-            });
-        } catch (error) {
-            res.status(400);
-            throw new Error(error.message);
+            throw new Error('Customer name and phone are required for manual orders');
         }
-    });
+
+        let orderItems = [];
+        if (items && Array.isArray(items) && items.length > 0) {
+            orderItems = items;
+        } else if (product) {
+            orderItems = [{ product, quantity: quantity || 1 }];
+        } else {
+            res.status(400);
+            throw new Error('No order items');
+        }
+
+        const orderData = {
+            user: req.user._id, // Created by Admin
+            customerName: customerName,
+            phone: phone,
+            orderSource: 'offline',
+            address,
+            paymentMethod,
+            items: orderItems
+        };
+        const createdOrder = await orderService.createOrder(orderData);
+
+        // Remove user ID from response
+        const responseOrder = createdOrder.toObject();
+        delete responseOrder.user;
+
+        res.status(201).json({
+            success: true,
+            message: 'Manual order created successfully',
+            data: responseOrder
+        });
+    } catch (error) {
+        res.status(400);
+        throw new Error(error.message);
+    }
+});
 
 // @desc    Get order by ID
 // @route   GET /api/orders/:id
