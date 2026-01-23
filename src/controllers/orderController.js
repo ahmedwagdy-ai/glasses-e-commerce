@@ -53,6 +53,12 @@ const addOrderItems = asyncHandler(async (req, res) => {
 // @route   POST /api/orders/admin
 const createAdminOrder = asyncHandler(async (req, res) => {
     try {
+        // Double check for admin privileges
+        if (!req.user || !req.user.isAdmin) {
+            res.status(401);
+            throw new Error('Not authorized as an admin');
+        }
+
         const { product, quantity, items, address, paymentMethod, customerName, phone } = req.body;
 
         if (!customerName || !phone) {
