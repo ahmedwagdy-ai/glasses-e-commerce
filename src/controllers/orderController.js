@@ -43,12 +43,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
         res.status(201).json({
             success: true,
             message: 'Order created successfully',
-            data: createdOrder,
-            debug: {
-                receivedBody: req.body,
-                isAdmin: req.user.isAdmin,
-                finalCustomerName: finalCustomerName
-            }
+            data: createdOrder
         });
     } catch (error) {
         res.status(400);
