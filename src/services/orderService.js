@@ -51,8 +51,8 @@ class OrderService {
             });
         }
 
-        if (data.freeShipping) {
-            shippingPrice = 0;
+        if (data.shippingPrice !== undefined && data.shippingPrice !== null) {
+            shippingPrice = data.shippingPrice;
         }
 
         const finalTotalAmount = itemsPrice + shippingPrice;

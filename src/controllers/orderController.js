@@ -59,7 +59,7 @@ const createAdminOrder = asyncHandler(async (req, res) => {
             throw new Error('Not authorized as an admin');
         }
 
-        const { product, quantity, items, address, paymentMethod, customerName, phone, freeShipping } = req.body;
+        const { product, quantity, items, address, paymentMethod, customerName, phone, shipping } = req.body;
 
         if (!customerName || !phone) {
             res.status(400);
@@ -84,7 +84,7 @@ const createAdminOrder = asyncHandler(async (req, res) => {
             address,
             paymentMethod,
             items: orderItems,
-            freeShipping
+            shippingPrice: shipping // Pass explicit shipping price if provided
         };
         const createdOrder = await orderService.createOrder(orderData);
 
