@@ -11,15 +11,14 @@ const addOrderItems = asyncHandler(async (req, res) => {
         let finalCustomerName = req.user.name;
         let finalPhone = req.user.phone;
 
-        console.log('Is Admin:', req.user.isAdmin);
-        console.log('Request Body:', req.body);
-
         // If Admin is creating the order, allow overriding name and phone
         if (req.user.isAdmin) {
             if (customerName) finalCustomerName = customerName;
             if (phone) finalPhone = phone;
         } else {
-            // If non-admin tries to set these fields, throw error or warn
+            // Standard user must use their own profile details
+            // (We ignore body params if sent by non-admin to avoid spoofing, 
+            // or we strictly forbid them as implemented below)
             if (customerName || phone) {
                 res.status(403);
                 throw new Error('Only admins can specify customerName and phone');
