@@ -121,11 +121,11 @@ const getOrderById = asyncHandler(async (req, res) => {
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
 const getMyOrders = asyncHandler(async (req, res) => {
-    const orders = await orderService.getMyOrders(req.user._id);
+    const result = await orderService.getMyOrders(req.user._id, req.query);
     res.json({
         success: true,
         message: 'My orders retrieved successfully',
-        data: orders
+        data: result
     });
 });
 

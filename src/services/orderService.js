@@ -91,10 +91,34 @@ class OrderService {
         return order;
     }
 
-    async getMyOrders(userId) {
-        const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+    async getMyOrders(userId, queryString) {
+        // Force the query to be scoped to the user
+        const query = Order.find({ user: userId });
+
+        const countQuery = new QueryHelper(Order.find({ user: userId }), queryString).filter();
+        const count = await countQuery.query.countDocuments();
+
+        const features = new QueryHelper(query, queryString)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+
+        // Populate
+        features.query
+            .populate('user', 'name email phone')
+            .populate('items.product', 'name price image');
+
+        const orders = await features.query;
+
+        const page = queryString ? (queryString.page * 1 || 1) : 1;
+        const limit = queryString ? (queryString.limit * 1 || 10) : 10;
+        const pages = Math.ceil(count / limit);
+
         return {
-            count: orders.length,
+            count,
+            page,
+            pages,
             orders
         };
     }
