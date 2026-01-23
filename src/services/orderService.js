@@ -96,6 +96,12 @@ class OrderService {
     }
 
     async getMyOrders(userId, queryString) {
+        // Handle pageNumber alias
+        if (queryString.pageNumber) {
+            queryString.page = queryString.pageNumber;
+            delete queryString.pageNumber;
+        }
+
         // Force the query to be scoped to the user
         const query = Order.find({ user: userId });
 
@@ -128,6 +134,12 @@ class OrderService {
     }
 
     async getOrders(queryString) {
+        // Handle pageNumber alias
+        if (queryString.pageNumber) {
+            queryString.page = queryString.pageNumber;
+            delete queryString.pageNumber;
+        }
+
         const countQuery = new QueryHelper(Order.find(), queryString).filter();
         const count = await countQuery.query.countDocuments();
 
@@ -145,8 +157,8 @@ class OrderService {
 
         const orders = await features.query;
 
-        const page = queryString ? (queryString.page * 1 || 1) : 1;
-        const limit = queryString ? (queryString.limit * 1 || 10) : 10;
+        const page = queryString.page * 1 || 1;
+        const limit = queryString.limit * 1 || 10;
         const pages = Math.ceil(count / limit);
 
         return { count, page, pages, orders };
