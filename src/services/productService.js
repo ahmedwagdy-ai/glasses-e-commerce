@@ -211,6 +211,14 @@ class ProductService {
         await product.deleteOne();
         return { message: 'Product removed' };
     }
+
+    async backfillPrice() {
+        // Set priceBeforeDiscount to 0 where it does not exist
+        return await Product.updateMany(
+            { priceBeforeDiscount: { $exists: false } },
+            { $set: { priceBeforeDiscount: 0 } }
+        );
+    }
 }
 
 module.exports = new ProductService();
