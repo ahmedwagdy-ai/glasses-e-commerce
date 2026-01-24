@@ -7,7 +7,11 @@ const createProductSchema = Joi.object({
         ar: Joi.string().required()
     }).required(),
     price: Joi.number().required().min(0),
-    priceBeforeDiscount: Joi.number().min(0).default(0),
+    priceBeforeDiscount: Joi.number().min(0).default(0)
+        .when('price', {
+            is: Joi.exist(),
+            then: Joi.number().allow(0).greater(Joi.ref('price'))
+        }),
     shippingPrice: Joi.number().min(0).default(0),
     category: Joi.string().required(), // Expecting ObjectId as string
     colors: Joi.array().items(
