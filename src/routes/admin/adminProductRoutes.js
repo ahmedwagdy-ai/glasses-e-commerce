@@ -6,7 +6,6 @@ const {
     deleteProduct,
     getProducts,
     getProductById,
-    backfillProducts
 } = require('../../controllers/productController');
 const { protect, admin } = require('../../middleware/authMiddleware');
 const validate = require('../../middleware/validate');
@@ -23,8 +22,5 @@ router.route('/:id')
     .get(protect, admin, getProductById)
     .put(protect, admin, upload.fields([{ name: 'colorImages', maxCount: 10 }]), processMixedFiles, validate(updateProductSchema), updateProduct)
     .delete(protect, admin, deleteProduct);
-
-router.route('/migration/backfill-price')
-    .put(protect, admin, backfillProducts);
 
 module.exports = router;

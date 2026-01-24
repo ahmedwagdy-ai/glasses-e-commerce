@@ -88,22 +88,11 @@ const createProductReview = asyncHandler(async (req, res) => {
     });
 });
 
-const backfillProducts = asyncHandler(async (req, res) => {
-    // Update all products to have priceBeforeDiscount = 0 if it doesn't exist
-    const result = await productService.backfillPrice();
-    res.json({
-        success: true,
-        message: 'Products backfilled successfully',
-        data: result
-    });
-});
-
 module.exports = {
     getProducts,
     getProductById,
     createProduct,
     updateProduct,
     deleteProduct,
-    createProductReview,
-    backfillProducts
+    createProductReview
 };
