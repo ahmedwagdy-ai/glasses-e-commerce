@@ -7,7 +7,7 @@ const getProducts = asyncHandler(async (req, res) => {
     // Filter out of stock products for non-admins (User APIs)
     // Admin routes use 'protect' middleware which populates req.user
     if (!(req.user && req.user.isAdmin)) {
-        req.query.countInStock = { $gt: 0 };
+        req.query.countInStock = { gt: 0 };
     }
 
     const products = await productService.getAllProducts(req.query);
