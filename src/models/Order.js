@@ -17,6 +17,7 @@ const orderSchema = mongoose.Schema({
             quantity: { type: Number, required: true },
             name: { type: String, required: true },
             price: { type: Number, required: true },
+            priceBeforeDiscount: { type: Number, required: true, default: 0 },
         }
     ],
     shippingPrice: { type: Number, required: true, default: 0 },

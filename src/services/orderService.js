@@ -45,6 +45,7 @@ class OrderService {
                 product: product._id,
                 name: product.name,
                 price: product.price,
+                priceBeforeDiscount: product.priceBeforeDiscount || 0, // Snapshot
                 shippingPrice: productShipping, // Store snapshot of shipping cost
                 quantity: item.quantity,
                 image: (product.colors && product.colors.length > 0) ? product.colors[0].image.url : null
