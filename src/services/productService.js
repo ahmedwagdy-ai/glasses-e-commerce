@@ -150,12 +150,13 @@ class ProductService {
     }
 
     async createProduct(data) {
-        const { name, description, price, shippingPrice, category, colors, countInStock } = data;
+        const { name, description, price, priceBeforeDiscount, shippingPrice, category, colors, countInStock } = data;
 
         const product = new Product({
             name,
             description,
             price,
+            priceBeforeDiscount,
             shippingPrice,
             category,
             colors,

@@ -7,6 +7,7 @@ const productSchema = mongoose.Schema({
         ar: { type: String, required: true }
     },
     price: { type: Number, required: true },
+    priceBeforeDiscount: { type: Number, required: false, default: 0 },
     shippingPrice: { type: Number, required: true, default: 0 },
     category: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Category' },
     colors: [

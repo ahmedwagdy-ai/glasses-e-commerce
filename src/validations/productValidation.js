@@ -7,6 +7,7 @@ const createProductSchema = Joi.object({
         ar: Joi.string().required()
     }).required(),
     price: Joi.number().required().min(0),
+    priceBeforeDiscount: Joi.number().min(0).default(0),
     shippingPrice: Joi.number().min(0).default(0),
     category: Joi.string().required(), // Expecting ObjectId as string
     colors: Joi.array().items(
@@ -28,6 +29,7 @@ const updateProductSchema = Joi.object({
         ar: Joi.string().optional()
     }).optional(),
     price: Joi.number().min(0).optional(),
+    priceBeforeDiscount: Joi.number().min(0).optional(),
     shippingPrice: Joi.number().min(0).optional(),
     category: Joi.string().optional(),
     colors: Joi.array().items(
