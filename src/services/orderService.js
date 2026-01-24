@@ -48,7 +48,7 @@ class OrderService {
                 priceBeforeDiscount: product.priceBeforeDiscount || 0, // Snapshot
                 shippingPrice: productShipping, // Store snapshot of shipping cost
                 quantity: item.quantity,
-                image: (product.colors && product.colors.length > 0) ? product.colors[0].image.url : null
+                image: (product.colors && product.colors.length > 0 && product.colors[0].images && product.colors[0].images.length > 0) ? product.colors[0].images[0].url : null
             });
         }
 
