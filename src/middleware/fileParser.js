@@ -58,34 +58,51 @@ const processMixedFiles = (req, res, next) => {
             // If parsing fails, ignore (validation will catch it)
         }
 
-        if (Array.isArray(colors) && req.files && req.files.colorImages) {
-            const allFiles = req.files.colorImages;
-            colors.forEach((color, index) => {
-                color.images = color.images || []; // Initialize or keep existing
+        if (Array.isArray(colors) && req.files) {
+            // New Logic: Check for field names like colorImages_0, colorImages_1
+            // Use req.files array since we used upload.any()
 
-                // If explicit indices are provided (e.g., [0, 2] for this color)
-                if (color.imageIndexes && Array.isArray(color.imageIndexes)) {
-                    color.imageIndexes.forEach(fileIndex => {
-                        const file = allFiles[fileIndex];
-                        if (file) {
-                            color.images.push({
-                                url: file.path,
-                                public_id: file.filename,
-                            });
-                        }
-                    });
-                    delete color.imageIndexes; // Cleanup
-                } else {
-                    // Fallback: 1-to-1 mapping (Legacy behavior)
-                    const file = allFiles[index];
-                    if (file) {
-                        color.images.push({
+            // Map files by fieldname for easier access if needed, or iterate
+            req.files.forEach(file => {
+                // Check if fieldname is colorImages_X
+                const match = file.fieldname.match(/^colorImages_(\d+)$/);
+                if (match) {
+                    const index = parseInt(match[1], 10);
+                    if (colors[index]) {
+                        colors[index].images = colors[index].images || [];
+                        colors[index].images.push({
                             url: file.path,
-                            public_id: file.filename,
+                            public_id: file.filename
                         });
                     }
                 }
+                // Legacy support or fallback: colorImages (array)
+                else if (file.fieldname === 'colorImages') {
+                    // We can't really map this without indexes unless we assume order or provided imageIndexes
+                    // The previous logic for imageIndexes is still valid if user sends 'colorImages' field + 'imageIndexes' in JSON
+                    // But here we focus on the new simple way.
+                }
             });
+
+            // Re-apply the explicit index logic just in case they mix methods (optional, but good for backward compat if we want to keep it)
+            if (req.files.some(f => f.fieldname === 'colorImages')) {
+                const allFiles = req.files.filter(f => f.fieldname === 'colorImages');
+                colors.forEach((color, index) => {
+                    color.images = color.images || [];
+                    if (color.imageIndexes && Array.isArray(color.imageIndexes)) {
+                        color.imageIndexes.forEach(fileIndex => {
+                            const file = allFiles[fileIndex];
+                            if (file) {
+                                color.images.push({
+                                    url: file.path,
+                                    public_id: file.filename,
+                                });
+                            }
+                        });
+                        delete color.imageIndexes;
+                    }
+                });
+            }
         }
         req.body.colors = colors;
     }

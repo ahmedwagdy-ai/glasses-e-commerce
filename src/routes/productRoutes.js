@@ -18,7 +18,7 @@ const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../config/cloudinary');
 const { parseFiles, processMixedFiles } = require('../middleware/fileParser');
 
-router.route('/').get(getProducts).post(protect, admin, upload.fields([{ name: 'colorImages', maxCount: 10 }]), processMixedFiles, validate(createProductSchema), createProduct);
+router.route('/').get(getProducts).post(protect, admin, upload.any(), processMixedFiles, validate(createProductSchema), createProduct);
 router.route('/:id/reviews').post(protect, validate(reviewSchema), createProductReview);
 router.route('/:id')
     .get(getProductById);

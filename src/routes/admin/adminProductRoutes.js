@@ -16,11 +16,11 @@ const { processMixedFiles } = require('../../middleware/fileParser');
 
 router.route('/')
     .get(protect, admin, getProducts)
-    .post(protect, admin, upload.fields([{ name: 'colorImages', maxCount: 10 }]), processMixedFiles, validate(createProductSchema), createProduct);
+    .post(protect, admin, upload.any(), processMixedFiles, validate(createProductSchema), createProduct);
 
 router.route('/:id')
     .get(protect, admin, getProductById)
-    .put(protect, admin, upload.fields([{ name: 'colorImages', maxCount: 10 }]), processMixedFiles, validate(updateProductSchema), updateProduct)
+    .put(protect, admin, upload.any(), processMixedFiles, validate(updateProductSchema), updateProduct)
     .delete(protect, admin, deleteProduct);
 
 module.exports = router;
