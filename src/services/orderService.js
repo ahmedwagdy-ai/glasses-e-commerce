@@ -88,7 +88,7 @@ class OrderService {
     async getOrderById(id) {
         const order = await Order.findById(id)
             .populate('user', 'name email phone')
-            .populate('items.product', 'name price image');
+            .populate('items.product', 'name price priceBeforeDiscount image');
         if (!order) {
             throw new Error('Order not found');
         }
@@ -117,7 +117,7 @@ class OrderService {
         // Populate after query helper execution if needed, but here we can chain populate 
         // Note: chained query methods work on the Mongoose Query object
         features.query
-            .populate('items.product', 'name price image');
+            .populate('items.product', 'name price priceBeforeDiscount image');
 
         const orders = await features.query;
 
@@ -152,7 +152,7 @@ class OrderService {
         // Populate after query helper execution if needed, but here we can chain populate 
         // Note: chained query methods work on the Mongoose Query object
         features.query
-            .populate('items.product', 'name price image');
+            .populate('items.product', 'name price priceBeforeDiscount image');
 
         const orders = await features.query;
 
