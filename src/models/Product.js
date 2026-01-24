@@ -35,7 +35,21 @@ const productSchema = mongoose.Schema({
     numReviews: { type: Number, required: true, default: 0 },
 }, {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON: {
+        virtuals: true,
+        transform: function (doc, ret) {
+            // Enforce field order to keep prices together
+            return {
+                _id: ret._id,
+                name: ret.name,
+                description: ret.description,
+                price: ret.price,
+                priceBeforeDiscount: ret.priceBeforeDiscount,
+                // Spread the rest of the fields
+                ...ret
+            };
+        }
+    },
     toObject: { virtuals: true }
 });
 
