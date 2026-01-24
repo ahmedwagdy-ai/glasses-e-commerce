@@ -173,12 +173,32 @@ class ProductService {
         }
 
         // Cleanup images if they are being updated
+        // Cleanup images if they are being updated
         if (data.colors) {
             for (const col of product.colors) {
-                if (col.image && col.image.public_id) {
-                    const isKept = data.colors.find((newCol) => newCol.image.public_id === col.image.public_id);
-                    if (!isKept) {
-                        await cloudinaryService.deleteImage(col.image.public_id);
+                if (col.images && col.images.length > 0) {
+                    for (const img of col.images) {
+                        if (img && img.public_id) {
+                            // Flawed check? We need to check if *this specific image* is kept in the new data
+                            // Actually, simpler logic: If the entire color is replaced, we might lose track.
+                            // But usually `data.colors` replaces the array.
+                            // We need to check if `img.public_id` exists in ANY of the new `data.colors` images.
+
+                            let isKept = false;
+                            for (const newCol of data.colors) {
+                                if (newCol.images && newCol.images.length > 0) {
+                                    const found = newCol.images.find(ni => ni.public_id === img.public_id);
+                                    if (found) {
+                                        isKept = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!isKept) {
+                                await cloudinaryService.deleteImage(img.public_id);
+                            }
+                        }
                     }
                 }
             }
@@ -200,10 +220,15 @@ class ProductService {
         }
 
         // Delete all associated images from Cloudinary
+        // Delete all associated images from Cloudinary
         if (product.colors && product.colors.length > 0) {
             for (const col of product.colors) {
-                if (col.image && col.image.public_id) {
-                    await cloudinaryService.deleteImage(col.image.public_id);
+                if (col.images && col.images.length > 0) {
+                    for (const img of col.images) {
+                        if (img && img.public_id) {
+                            await cloudinaryService.deleteImage(img.public_id);
+                        }
+                    }
                 }
             }
         }

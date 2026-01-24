@@ -59,12 +59,31 @@ const processMixedFiles = (req, res, next) => {
         }
 
         if (Array.isArray(colors) && req.files && req.files.colorImages) {
-            req.files.colorImages.forEach((file, index) => {
-                if (colors[index]) {
-                    colors[index].image = {
-                        url: file.path,
-                        public_id: file.filename,
-                    };
+            const allFiles = req.files.colorImages;
+            colors.forEach((color, index) => {
+                color.images = color.images || []; // Initialize or keep existing
+
+                // If explicit indices are provided (e.g., [0, 2] for this color)
+                if (color.imageIndexes && Array.isArray(color.imageIndexes)) {
+                    color.imageIndexes.forEach(fileIndex => {
+                        const file = allFiles[fileIndex];
+                        if (file) {
+                            color.images.push({
+                                url: file.path,
+                                public_id: file.filename,
+                            });
+                        }
+                    });
+                    delete color.imageIndexes; // Cleanup
+                } else {
+                    // Fallback: 1-to-1 mapping (Legacy behavior)
+                    const file = allFiles[index];
+                    if (file) {
+                        color.images.push({
+                            url: file.path,
+                            public_id: file.filename,
+                        });
+                    }
                 }
             });
         }

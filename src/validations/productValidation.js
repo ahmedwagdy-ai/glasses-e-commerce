@@ -17,10 +17,13 @@ const createProductSchema = Joi.object({
     colors: Joi.array().items(
         Joi.object({
             name: Joi.string().required(),
-            image: Joi.object({
-                url: Joi.string().required(),
-                public_id: Joi.string().required()
-            }).required()
+            images: Joi.array().items(
+                Joi.object({
+                    url: Joi.string().required(),
+                    public_id: Joi.string().required()
+                })
+            ).optional(),
+            imageIndexes: Joi.array().items(Joi.number()).optional()
         })
     ).optional(),
     countInStock: Joi.number().required().min(0).default(0),
@@ -39,10 +42,13 @@ const updateProductSchema = Joi.object({
     colors: Joi.array().items(
         Joi.object({
             name: Joi.string().required(),
-            image: Joi.object({
-                url: Joi.string().required(),
-                public_id: Joi.string().required()
-            }).required()
+            images: Joi.array().items(
+                Joi.object({
+                    url: Joi.string().required(),
+                    public_id: Joi.string().required()
+                })
+            ).optional(),
+            imageIndexes: Joi.array().items(Joi.number()).optional()
         })
     ).optional(),
     countInStock: Joi.number().min(0).optional(),
